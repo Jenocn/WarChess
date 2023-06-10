@@ -13,6 +13,11 @@ namespace WarChess {
 		// 地形行动力消耗
 		private Dictionary<int, float> _terrainActionCostDict = new Dictionary<int, float>();
 
+		// 阵营类型
+		private int _camp = 0;
+		// 友好阵营列表
+		private HashSet<int> _friendlyCampList = new HashSet<int>();
+
 		public void SetPosition(int x, int y) {
 			this.x = x;
 			this.y = y;
@@ -45,6 +50,22 @@ namespace WarChess {
 		}
 		public void RemoveTerrainActionCost(int terrain) {
 			_terrainActionCostDict.Remove(terrain);
+		}
+
+		public int GetCamp() {
+			return _camp;
+		}
+		public void SetCamp(int camp) {
+			_camp = camp;
+		}
+		public void AddFriendlyCamp(int camp) {
+			_friendlyCampList.Add(camp);
+		}
+		public void RemoveFriendlyCamp(int camp) {
+			_friendlyCampList.Remove(camp);
+		}
+		public bool IsFriendlyCamp(WarChessSprite sprite) {
+			return _friendlyCampList.Contains(sprite.GetCamp());
 		}
 	}
 }

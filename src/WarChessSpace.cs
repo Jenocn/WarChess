@@ -6,9 +6,10 @@ namespace WarChess {
 	/// </summary>
 	public class WarChessSpace {
 		private List<WarChessCell> _cellList = null;
+		private LinkedList<WarChessSprite> _sprites = new LinkedList<WarChessSprite>();
 
-		public int row { get; private set; } = 0;
 		public int col { get; private set; } = 0;
+		public int row { get; private set; } = 0;
 
 		public void Init(string src) {
 			// todo...
@@ -36,6 +37,26 @@ namespace WarChess {
 			}
 		}
 
+		public void AddSprite(WarChessSprite sprite) {
+			if (!_sprites.Contains(sprite)) {
+				_sprites.AddLast(sprite);
+			}
+		}
+		public void RemoveSprite(WarChessSprite sprite) {
+			_sprites.Remove(sprite);
+		}
+		public bool ContainsSprite(WarChessSprite sprite) {
+			return _sprites.Contains(sprite);
+		}
+		public WarChessSprite GetSprite(int x, int y) {
+			foreach (var item in _sprites) {
+				if (item.x == x && item.y == y) {
+					return item;
+				}
+			}
+			return null;
+		}
+
 		public WarChessCell GetCell(int x, int y) {
 			if (x < 0 || x >= col || y < 0 || y > row) {
 				return null;
@@ -47,6 +68,10 @@ namespace WarChess {
 				return _cellList[index];
 			}
 			return null;
+		}
+
+		public List<WarChessCell> GetCellList() {
+			return _cellList;
 		}
 	}
 }
