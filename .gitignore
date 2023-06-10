@@ -1,0 +1,11 @@
+**/.vs
+**/.vscode
+**/.DS_Store
+
+**/*.suo
+**/*.exe
+
+/[Bb]in/
+/[Oo]bj/
+
+
