@@ -18,6 +18,9 @@ namespace WarChess {
 		// 友好阵营列表
 		private HashSet<int> _friendlyCampList = new HashSet<int>();
 
+		// 交互范围
+		private LinkedList<System.Tuple<int, int>> _interactionRange = new LinkedList<System.Tuple<int, int>>();
+
 		public void SetPosition(int x, int y) {
 			this.x = x;
 			this.y = y;
@@ -66,6 +69,36 @@ namespace WarChess {
 		}
 		public bool IsFriendlyCamp(WarChessSprite sprite) {
 			return _friendlyCampList.Contains(sprite.GetCamp());
+		}
+
+		public void AddInteractionRangeItem(int x, int y) {
+			if (GetInteractionItem(x, y) == null) {
+				_interactionRange.AddLast(new System.Tuple<int, int>(x, y));
+			}
+		}
+		public void RemoveInteractionRangeItem(int x, int y) {
+			var node = _interactionRange.First;
+			do {
+				var item = node.Value;
+				if (item.Item1 == x && item.Item2 == y) {
+					_interactionRange.Remove(node);
+					return;
+				}
+
+				node = node.Next;
+			} while (node != null);
+			// todo test ...
+		}
+		public System.Tuple<int, int> GetInteractionItem(int x, int y) {
+			foreach (var item in _interactionRange) {
+				if (item.Item1 == x && item.Item2 == y) {
+					return item;
+				}
+			}
+			return null;
+		}
+		public LinkedList<System.Tuple<int, int>> GetInteractionRange() {
+			return _interactionRange;
 		}
 	}
 }

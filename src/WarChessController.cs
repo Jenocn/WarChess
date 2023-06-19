@@ -4,6 +4,7 @@ namespace WarChess {
 	public class WarChessActionResult {
 		public LinkedList<WarChessPath> pathList = new LinkedList<WarChessPath>();
 		public LinkedList<WarChessCell> visibleCells = new LinkedList<WarChessCell>();
+		public LinkedList<WarChessCell> interactionCells = new LinkedList<WarChessCell>();
 
 		public WarChessPath GetPath(int x, int y) {
 			foreach (var item in pathList) {
