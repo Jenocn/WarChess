@@ -6,6 +6,7 @@ namespace WarChess {
 		public int layer { get; private set; } = 0;
 		public WarChessNode<T> parent { get; set; } = null;
 		public LinkedList<WarChessNode<T>> children = new LinkedList<WarChessNode<T>>();
+		public float customData { get; set; } = 0;
 
 		public WarChessNode() { }
 		public WarChessNode(T value) {
