@@ -18,12 +18,6 @@ namespace WarChess {
 			return ret;
 		}
 
-		public void RemoveFromParent() {
-			if (parent != null) {
-				parent.children.Remove(this);
-			}
-		}
-
 		private void _SetParent(WarChessNode<T> node) {
 			parent = node;
 			layer = node.layer + 1;

@@ -7,52 +7,63 @@ namespace WarChess {
 		public WarChessSprite sprite { get; set; } = null;
 
 		private LinkedList<WarChessCell> _visibleCells = new LinkedList<WarChessCell>();
-		private HashSet<WarChessCell> _sideCells = new HashSet<WarChessCell>();
 
 		public void FixData() {
-			// 清理被精灵占据的边缘格子
-			do {
-				if (tree.value == null) { break; }
-				if (tree.children.Count == 0) { break; }
-				_FixChildren(tree);
-			} while (false);
-
-			_GeneratorCellList();
+			_visibleCells.Clear();
+			if (tree.value != null) {
+				_visibleCells.AddLast(tree.value);
+				_GeneratorCellListFromChildren(tree, in _visibleCells);
+			}
 		}
 
 		public LinkedList<WarChessCell> GetVisibleCells() {
 			return _visibleCells;
 		}
-		public HashSet<WarChessCell> GetSideCells() {
-			return _sideCells;
-		}
 
-		private void _FixChildren(WarChessNode<WarChessCell> node) {
-			// 先深度优先清理子节点
-			foreach (var item in node.children) {
-				_FixChildren(item);
-			}
-			do {
-				if (node.children.Count != 0) { break; }
-				if (node.value != null) {
-					var findSprite = space.GetSprite(node.value.x, node.value.y);
-					if (findSprite == null || findSprite == sprite) { break; }
+		public LinkedList<WarChessCell> GetWay(int x, int y) {
+			foreach (var item in _visibleCells) {
+				if (item.x == x && item.y == y) {
+					return GetWay(item);
 				}
-				// 若没有子节点了，且符合清理条件，则清理自身
-				node.RemoveFromParent();
-			} while (false);
-		}
-
-		private void _GeneratorCellList() {
-			_visibleCells.Clear();
-			_sideCells.Clear();
-			if (tree.value != null) {
-				_visibleCells.AddLast(tree.value);
-				_GeneratorCellListFromChildren(tree, in _visibleCells, in _sideCells);
 			}
+			return new LinkedList<WarChessCell>();
+		}
+		public LinkedList<WarChessCell> GetWay(WarChessCell cell) {
+			var tempList = new LinkedList<WarChessCell>();
+			var minLayerNode = _FindMinLayerNode(tree, cell);
+			if (minLayerNode == null) {
+				return tempList;
+			}
+			var node = minLayerNode;
+			while (node != null) {
+				tempList.AddFirst(node.value);
+				node = node.parent;
+			}
+			return tempList;
 		}
 
-		private void _GeneratorCellListFromChildren(WarChessNode<WarChessCell> node, in LinkedList<WarChessCell> visibleList, in HashSet<WarChessCell> sideList) {
+		private WarChessNode<WarChessCell> _FindMinLayerNode(WarChessNode<WarChessCell> root, WarChessCell cell) {
+			WarChessNode<WarChessCell> ret = null;
+			foreach (var item in root.children) {
+				if (item.value == cell) {
+					ret = item;
+					break;
+				}
+			}
+			if (ret == null) {
+				// 如果当前层级下没有找到对应的cell则继续往深层找
+				foreach (var item in root.children) {
+					var temp = _FindMinLayerNode(item, cell);
+					if (temp == null) { continue; }
+					if (ret == null || ret.layer > temp.layer) {
+						ret = temp;
+					}
+				}
+			}
+			return ret;
+		}
+
+		private void _GeneratorCellListFromChildren(WarChessNode<WarChessCell> node, in LinkedList<WarChessCell> visibleList) {
 			if (node.value == null) { return; }
 
 			foreach (var item in node.children) {
@@ -62,10 +73,7 @@ namespace WarChess {
 				}
 			}
 			foreach (var item in node.children) {
-				_GeneratorCellListFromChildren(item, in visibleList, in sideList);
-			}
-			if (node.children.Count == 0) {
-				sideList.Add(node.value);
+				_GeneratorCellListFromChildren(item, in visibleList);
 			}
 		}
 	}
