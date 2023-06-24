@@ -1,24 +1,6 @@
 using System.Collections.Generic;
 
 namespace WarChess {
-	public class WarChessActionResult {
-		public LinkedList<WarChessPath> pathList = new LinkedList<WarChessPath>();
-		public LinkedList<WarChessCell> visibleCells = new LinkedList<WarChessCell>();
-		public LinkedList<WarChessCell> interactionCells = new LinkedList<WarChessCell>();
-
-		public WarChessPath GetPath(int x, int y) {
-			foreach (var item in pathList) {
-				if (x == item.endCell.x && y == item.endCell.y) {
-					return item;
-				}
-			}
-			return null;
-		}
-		public WarChessPath GetPath(WarChessCell target) {
-			return GetPath(target.x, target.y);
-		}
-	}
-
 	/// <summary>
 	/// 控制器
 	/// 计算地形的影响和行动结果
@@ -27,56 +9,37 @@ namespace WarChess {
 		public WarChessActionResult GetActionCells(WarChessSpace space, WarChessSprite sprite) {
 			var ret = new WarChessActionResult();
 			var cell = space.GetCell(sprite.x, sprite.y);
-			_SearchActionCells(space, cell, sprite, sprite.GetBaseActionPoint(), null, in ret);
+			if (cell != null) {
+				// tree
+				ret.tree = new WarChessNode<WarChessCell>(cell);
+				ret.space = space;
+				ret.sprite = sprite;
+				_SearchActionSideCells(ret.tree, space, sprite, sprite.GetBaseActionPoint());
+				ret.FixData();
+			}
 			return ret;
 		}
 
-		private void _SearchActionCells(WarChessSpace space, WarChessCell cell, WarChessSprite sprite, float curAP, WarChessPath curPath, in WarChessActionResult ret) {
-			if (curPath == null) {
-				curPath = new WarChessPath();
-				curPath.Add(cell);
-			}
-
-			_SearchActionCellCur(space, cell.top, sprite, curAP, curPath, in ret);
-			_SearchActionCellCur(space, cell.bottom, sprite, curAP, curPath, in ret);
-			_SearchActionCellCur(space, cell.left, sprite, curAP, curPath, in ret);
-			_SearchActionCellCur(space, cell.right, sprite, curAP, curPath, in ret);
+		private void _SearchActionSideCells(WarChessNode<WarChessCell> node, WarChessSpace space, WarChessSprite sprite, float ap) {
+			_SearchActionCell(node.value.top, space, node, sprite, ap);
+			_SearchActionCell(node.value.bottom, space, node, sprite, ap);
+			_SearchActionCell(node.value.left, space, node, sprite, ap);
+			_SearchActionCell(node.value.right, space, node, sprite, ap);
 		}
 
-		private void _SearchActionCellCur(WarChessSpace space, WarChessCell cur, WarChessSprite sprite, float curAP, WarChessPath curPath, in WarChessActionResult ret) {
-			if (cur == null) { return; }
-			if (!sprite.TryGetTerrainActionCost(cur.terrain, out var cost)) { return; }
-			if (curAP < cost) { return; }
-			if (curPath.Contains(cur)) { return; }
-			var destSpr = space.GetSprite(cur.x, cur.y);
-			if ((destSpr != null) && !sprite.IsFriendlyCamp(destSpr)) { return; }
-			var newPath = curPath.Clone();
-			newPath.Add(cur);
-			_SaveActionCellToResult(cur, newPath, in ret);
-			_SearchActionCells(space, cur, sprite, curAP - cost, newPath, in ret);
-		}
-
-		private void _SaveActionCellToResult(WarChessCell cell, WarChessPath curPath, in WarChessActionResult ret) {
-			bool bAdd = true;
-			foreach (var item in ret.pathList) {
-				if (item.endCell == cell) {
-					if (item.size > curPath.size) {
-						bAdd = true;
-						ret.pathList.Remove(item);
-						break;
-					} else {
-						bAdd = false;
-						break;
-					}
-				}
-			}
-			if (bAdd) {
-				ret.pathList.AddLast(curPath.Clone());
-			}
-
-			if (!ret.visibleCells.Contains(cell)) {
-				ret.visibleCells.AddLast(cell);
-			}
+		private bool _SearchActionCell(WarChessCell cell, WarChessSpace space, WarChessNode<WarChessCell> parent, WarChessSprite sprite, float ap) {
+			if (cell == null) { return false; }
+			// 回头路不可
+			if ((parent.parent != null) && (parent.parent.value == cell)) { return false; }
+			// 当前Sprite是否可以通行这个地形
+			if (!sprite.TryGetTerrainActionCost(cell.terrain, out var cost)) { return false; }
+			// AP是否足够
+			if (ap < cost) { return false; }
+			// 这个单元格内的其他Sprite是否为我方或友方阵营
+			var destSpr = space.GetSprite(cell.x, cell.y);
+			if ((destSpr != null) && !sprite.IsFriendlyCamp(destSpr)) { return false; }
+			_SearchActionSideCells(parent.AddChild(cell), space, sprite, ap - cost);
+			return true;
 		}
 	}
 }
