@@ -5,7 +5,7 @@ namespace WarChess {
 	/// 布局，单元格排列
 	/// </summary>
 	public class WarChessLayout {
-		// x, y
+		// 相对坐标集合
 		public LinkedList<System.Tuple<int, int>> points { get; } = new LinkedList<System.Tuple<int, int>>();
 
 		public void Add(int x, int y) {

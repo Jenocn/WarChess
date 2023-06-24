@@ -3,23 +3,18 @@ using System.Collections.Generic;
 namespace WarChess {
 	public class WarChessActionResult {
 		public WarChessNode<WarChessCell> tree { get; set; } = null;
-		public WarChessSpace space { get; set; } = null;
-		public WarChessSprite sprite { get; set; } = null;
-
 		private LinkedList<WarChessCell> _visibleCells = new LinkedList<WarChessCell>();
 
-		public void FixData() {
-			_visibleCells.Clear();
-			if (tree.value != null) {
-				_visibleCells.AddLast(tree.value);
-				_GeneratorCellListFromChildren(tree, in _visibleCells);
-			}
-		}
-
+		/// <summary>
+		/// 获得有效单元格列表
+		/// </summary>
 		public LinkedList<WarChessCell> GetVisibleCells() {
 			return _visibleCells;
 		}
 
+		/// <summary>
+		/// 获得从根节点到目标位置的最短路径
+		/// </summary>
 		public LinkedList<WarChessCell> GetWay(int x, int y) {
 			foreach (var item in _visibleCells) {
 				if (item.x == x && item.y == y) {
@@ -28,6 +23,9 @@ namespace WarChess {
 			}
 			return new LinkedList<WarChessCell>();
 		}
+		/// <summary>
+		/// 获得从根节点到目标单元格的最短路径
+		/// </summary>
 		public LinkedList<WarChessCell> GetWay(WarChessCell cell) {
 			var tempList = new LinkedList<WarChessCell>();
 			var minLayerNode = _FindMinLayerNode(tree, cell);
@@ -74,6 +72,14 @@ namespace WarChess {
 			}
 			foreach (var item in node.children) {
 				_GeneratorCellListFromChildren(item, in visibleList);
+			}
+		}
+
+		public void GeneratorData() {
+			_visibleCells.Clear();
+			if (tree.value != null) {
+				_visibleCells.AddLast(tree.value);
+				_GeneratorCellListFromChildren(tree, in _visibleCells);
 			}
 		}
 	}
