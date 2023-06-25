@@ -33,15 +33,11 @@ namespace WarChess {
 		}
 
 		/// <summary>
-		/// 在所有子节点中获得从根节点到目标坐标的最短路径的节点集合
+		/// 在所有子节点中获得从根节点到目标坐标的最短层级(格子最少)的节点集合
 		/// </summary>
-		public static LinkedList<WarChessCell> GeneratorWay(WarChessNode<WarChessCell> root, int x, int y) {
+		public static LinkedList<WarChessCell> GeneratorWay_MinimumLayer(WarChessNode<WarChessCell> root, int x, int y) {
 			var tempList = new LinkedList<WarChessCell>();
-			var minLayerNode = _FindMinLayerNode(root, x, y);
-			if (minLayerNode == null) {
-				return tempList;
-			}
-			var node = minLayerNode;
+			var node = _FindMinLayerNode(root, x, y);
 			while (node != null) {
 				tempList.AddFirst(node.value);
 				node = node.parent;
@@ -50,10 +46,30 @@ namespace WarChess {
 		}
 
 		/// <summary>
-		/// 在所有子节点中获得从根节点到目标节点的最短路径的节点集合
+		/// 在所有子节点中获得从根节点到目标节点的最短层级(格子最少)的节点集合
 		/// </summary>
-		public static LinkedList<WarChessCell> GeneratorWay(WarChessNode<WarChessCell> root, WarChessCell cell) {
-			return GeneratorWay(root, cell.x, cell.y);
+		public static LinkedList<WarChessCell> GeneratorWay_MinimumLayer(WarChessNode<WarChessCell> root, WarChessCell cell) {
+			return GeneratorWay_MinimumLayer(root, cell.x, cell.y);
+		}
+
+		/// <summary>
+		/// 在所有子节点中获得从根节点到目标坐标的最小行动力(AP最少)的节点集合
+		/// </summary>
+		public static LinkedList<WarChessCell> GeneratorWay_MinimumAP(WarChessNode<WarChessCell> root, int x, int y) {
+			var tempList = new LinkedList<WarChessCell>();
+			var node = _FindMinAPNode(root, x, y);
+			while (node != null) {
+				tempList.AddFirst(node.value);
+				node = node.parent;
+			}
+			return tempList;
+		}
+
+		/// <summary>
+		/// 在所有子节点中获得从根节点到目标节点的最小行动力(AP最少)的节点集合
+		/// </summary>
+		public static LinkedList<WarChessCell> GeneratorWay_MinimumAP(WarChessNode<WarChessCell> root, WarChessCell cell) {
+			return GeneratorWay_MinimumAP(root, cell.x, cell.y);
 		}
 
 		private static WarChessNode<WarChessCell> _FindMinLayerNode(WarChessNode<WarChessCell> root, int x, int y) {
@@ -71,6 +87,26 @@ namespace WarChess {
 					if (temp == null) { continue; }
 					if (ret == null || ret.layer > temp.layer) {
 						ret = temp;
+					}
+				}
+			}
+			return ret;
+		}
+
+		private static WarChessNode<WarChessCell> _FindMinAPNode(WarChessNode<WarChessCell> root, int x, int y) {
+			WarChessNode<WarChessCell> ret = null;
+			foreach (var item in root.children) {
+				// 先在子节点中找
+				if (item.value.x == x && item.value.y == y) {
+					if (ret == null || ret.customData > item.customData) {
+						ret = item;
+					}
+				}
+				// 继续深入查找
+				var node = _FindMinAPNode(item, x, y);
+				if (node != null) {
+					if (ret == null || ret.customData > node.customData) {
+						ret = node;
 					}
 				}
 			}
@@ -118,7 +154,7 @@ namespace WarChess {
 				foreach (var child in tempParent.children) {
 					if (child.value == cell) {
 						// 已有消耗更少的单元格包含了当前格子
-						if (child.customData < newSumCostAP) {
+						if (child.customData < newSumCostAP && child.layer <= parent.layer) {
 							return;
 						}
 					}
