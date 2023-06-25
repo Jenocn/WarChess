@@ -8,8 +8,8 @@ namespace WarChess {
 		public int x { get; private set; } = 0;
 		public int y { get; private set; } = 0;
 
-		// 基础行动力
-		private float _baseActionPoint = 0;
+		// 行动力
+		private float _actionPoint = 0;
 		// 地形行动力消耗
 		private Dictionary<int, float> _terrainActionCostDict = new Dictionary<int, float>();
 
@@ -24,11 +24,11 @@ namespace WarChess {
 		}
 
 		public float GetBaseActionPoint() {
-			return _baseActionPoint;
+			return _actionPoint;
 		}
 
-		public void SetBaseActionPoint(float v) {
-			_baseActionPoint = v;
+		public void SetActionPoint(float v) {
+			_actionPoint = v;
 		}
 
 		/// <summary>

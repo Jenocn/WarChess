@@ -15,6 +15,10 @@ namespace WarChess {
 			// todo...
 		}
 		public void Init(int col, int row) {
+			Init(col, row, 0);
+		}
+
+		public void Init(int col, int row, int defTerrain) {
 			this.col = col;
 			this.row = row;
 			_cellList = new List<WarChessCell>(col * row);
@@ -24,6 +28,7 @@ namespace WarChess {
 				for (int j = 0; j < col; ++j) {
 					var item = new WarChessCell();
 					item.Init(index++, j, i, col, row);
+					item.SetTerrain(defTerrain);
 					_cellList.Add(item);
 				}
 			}
