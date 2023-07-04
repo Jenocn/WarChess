@@ -20,11 +20,11 @@ var player = new Sprite();
 // 设置坐标
 player.SetPosition(1, 1);
 // 设置行动力
-sprite.SetActionPoint(2);
+player.SetActionPoint(2);
 // 设置在‘1’这种地形上需要消耗的行动力为‘1’
-sprite.SetTerrainActionCost(1, 1);
+player.SetTerrainActionCost(1, 1);
 // 设置阵营类型
-sprite.SetCamp(1);
+player.SetCamp(1);
 // 添加到棋盘空间中去
 space.AddSprite(player);
 ```
